@@ -7,6 +7,7 @@ namespace DiggPHP\Psr3;
 use Composer\InstalledVersions;
 use Exception;
 use Psr\Log\AbstractLogger;
+use ReflectionClass;
 
 class LocalLogger extends AbstractLogger
 {
@@ -17,7 +18,7 @@ class LocalLogger extends AbstractLogger
     {
         if (is_null($log_path)) {
             if (class_exists(InstalledVersions::class)) {
-                $log_path = InstalledVersions::getRootPackage()['install_path'] . '/runtime/log/';
+                $log_path = dirname(dirname(dirname((new ReflectionClass(InstalledVersions::class))->getFileName()))) . '/runtime/log/';
             } else {
                 $log_path = __DIR__ . '/runtime/log/';
             }
@@ -43,6 +44,6 @@ class LocalLogger extends AbstractLogger
      */
     public function log($level, $message, array $context = array())
     {
-        error_log('[' . date(DATE_ISO8601) . '] ' . str_pad(strtoupper($level), 9, ' ', STR_PAD_LEFT) . ':' . $message . ' ' . json_encode($context, JSON_UNESCAPED_UNICODE) . PHP_EOL, 3, $this->log_path . '/' . date('Y-m-d') . '.log');
+        error_log('[' . date(DATE_ATOM) . '] ' . str_pad(strtoupper($level), 9, ' ', STR_PAD_LEFT) . ':' . $message . ' ' . json_encode($context, JSON_UNESCAPED_UNICODE) . PHP_EOL, 3, $this->log_path . '/' . date('Y-m-d') . '.log');
     }
 }
